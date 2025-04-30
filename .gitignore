@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+env/
+venv/
+.venv/
+*.env
+instance/
+.mypy_cache/
+.pytest_cache/
+
+# Flask-Migrate
+migrations/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

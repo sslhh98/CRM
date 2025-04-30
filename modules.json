@@ -1,0 +1,8 @@
+{
+  "customers": true,
+  "stock": true,
+  "messages": true,
+  "tasks": true,
+  "opportunities": true,
+  "dashboard": true
+}

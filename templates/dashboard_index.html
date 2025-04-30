@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <div class="bg-white p-6 rounded shadow text-center">
+    <span class="text-3xl font-bold">{{ total_customers }}</span>
+    <p class="text-gray-600">Müşteri</p>
+  </div>
+  <div class="bg-white p-6 rounded shadow text-center">
+    <span class="text-3xl font-bold">{{ total_stocks }}</span>
+    <p class="text-gray-600">Stok Kaydı</p>
+  </div>
+  <div class="bg-white p-6 rounded shadow text-center">
+    <span class="text-3xl font-bold">{{ total_messages }}</span>
+    <p class="text-gray-600">Mesaj</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="bg-white p-6 rounded shadow">
+    <h3 class="text-xl font-semibold mb-4">Görev Durumları</h3>
+    <canvas id="tasksChart"></canvas>
+  </div>
+  <div class="bg-white p-6 rounded shadow">
+    <h3 class="text-xl font-semibold mb-4">Fırsat Aşamaları</h3>
+    <canvas id="oppsChart"></canvas>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Görev Durumları Pie Chart
+  new Chart(document.getElementById('tasksChart'), {
+    type: 'pie',
+    data: {
+      labels: {{ tasks_status_counts.keys()|list|tojson }},
+      datasets: [{ data: {{ tasks_status_counts.values()|list|tojson }}}]
+    }
+  });
+
+  // Fırsat Aşamaları Bar Chart
+  new Chart(document.getElementById('oppsChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ opp_stage_counts.keys()|list|tojson }},
+      datasets: [{
+        label: 'Fırsat Sayısı',
+        data: {{ opp_stage_counts.values()|list|tojson }}
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
+{% endblock %}

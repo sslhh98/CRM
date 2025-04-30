@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Yeni Stok Ekle{% endblock %}
+{% block header %}Yeni Stok Ekle{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
+  <form method="POST" class="space-y-4">
+    <div>
+      <label class="block mb-1">Boyut</label>
+      <input type="text" name="size" required
+             class="w-full border rounded px-3 py-2"
+             placeholder="Örn. Küçük, Orta, 42" />
+    </div>
+    <div>
+      <label class="block mb-1">Miktar</label>
+      <input type="number" name="quantity" required
+             class="w-full border rounded px-3 py-2"
+             placeholder="Örn. 10" min="0" />
+    </div>
+    <div class="flex space-x-4 pt-4">
+      <button type="submit"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+        Ekle
+      </button>
+      <a href="{{ url_for('stock.stock_list') }}"
+         class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+        İptal
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

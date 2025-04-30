@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}Mesajlar{% endblock %}
+{% block header %}Mesajlar{% endblock %}
+
+{% block content %}
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold">Mesajlar</h2>
+    <a href="{{ url_for('messages.add_message') }}"
+       class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+      Yeni Mesaj
+    </a>
+  </div>
+
+  {% for m in messages %}
+    <div class="bg-white rounded shadow p-4 mb-4">
+      <div class="flex justify-between items-center text-sm text-gray-500">
+        <span>{{ m.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+        <a href="{{ url_for('messages.delete_message', message_id=m.id) }}"
+          class="delete text-red-600 hover:underline">Sil</a>
+      </div>
+      <p class="mt-2">{{ m.body }}</p>
+      {% if m.tag %}
+        <span class="inline-block mt-2 bg-gray-200 text-gray-700 px-2 py-1 text-sm rounded">
+          #{{ m.tag }}
+        </span>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="text-center text-gray-500">Henüz mesaj yok.</div>
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+{% block header %}Hoş Geldiniz{% endblock %}
+
+{% block content %}
+<div class="text-center py-16">
+  <h2 class="text-4xl font-bold mb-4">CRM’e Hoş Geldiniz!</h2>
+  <p class="text-gray-600 mb-6">İşlerinizi kolayca yönetin; tüm modüller elinizin altında.</p>
+  <div class="space-x-4">
+  {% set labels = {
+      'customers':'Müşteriler',
+       'stock':'Stoklar',
+       'messages':'Mesajlar',
+       'tasks':'Görevler',
+       'opportunities':'Fırsatlar',
+       'dashboard':'Panolar'
+  } %}
+    <div class="space-x-4">
+    {% for mod, enabled in modules.items() if enabled %}
+      <a href="{{ url_for(mod + '.index') }}"
+         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        
+        {{ labels[mod] }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

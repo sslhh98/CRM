@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Müşteri İçe Aktar{% endblock %}
+{% block header %}Müşteri İçe Aktar{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">CSV ile Müşteri İçe Aktar</h2>
+  <form method="POST" enctype="multipart/form-data" class="space-y-4">
+    <div>
+      <label class="block mb-1">CSV Dosyası Seç</label>
+      <input type="file" name="file" accept=".csv"
+             class="w-full border rounded px-3 py-2">
+    </div>
+    <button type="submit"
+            class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      İçe Aktar
+    </button>
+  </form>
+  <a href="{{ url_for('customers.index') }}"
+     class="inline-block mt-4 text-blue-600 hover:underline">
+    ← Yönetim Paneline Dön
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block title %}Stok Yönetimi{% endblock %}
+{% block header %}Stok Yönetimi{% endblock %}
+
+{% block content %}
+  <!-- Arama / Filtreleme -->
+  <div class="mb-4 flex items-center">
+    <form method="GET" class="flex-1 flex">
+      <input
+        type="text"
+        name="q"
+        value="{{ search }}"
+        placeholder="Boyuta göre ara…"
+        class="flex-1 border rounded-l px-3 py-2"
+      >
+      <button type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700">
+        Ara
+      </button>
+    </form>
+    <a href="{{ url_for('stock.index') }}"
+       class="ml-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+      Temizle
+    </a>
+  </div>
+
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold">Stok Listesi</h2>
+    <a href="{{ url_for('stock.add_stock') }}"
+       class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      Yeni Stok
+    </a>
+  </div>
+
+  <div class="overflow-x-auto bg-white rounded shadow">
+    <table class="min-w-full">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="px-4 py-2 text-left">ID</th>
+          <th class="px-4 py-2 text-left">Boyut</th>
+          <th class="px-4 py-2 text-left">Miktar</th>
+          <th class="px-4 py-2 text-left">Son Güncelleme</th>
+          <th class="px-4 py-2 text-left">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in stocks %}
+        <tr class="odd:bg-gray-50">
+          <td class="px-4 py-2">{{ s.id }}</td>
+          <td class="px-4 py-2">{{ s.size }}</td>
+          <td class="px-4 py-2">{{ s.quantity }}</td>
+          <td class="px-4 py-2">{{ s.last_updated.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td class="px-4 py-2 space-x-2">
+            <a href="{{ url_for('stock.update_stock', id=s.id) }}"
+               class="text-indigo-600 hover:underline">Güncelle</a>
+            <a href="{{ url_for('stock.delete_stock', id=s.id) }}"
+               class="text-red-600 hover:underline"
+               onclick="return confirm('Bu stok kaydını silmek istediğinizden emin misiniz?');">
+              Sil
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="px-4 py-4 text-center text-gray-500">Henüz stok kaydı yok.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

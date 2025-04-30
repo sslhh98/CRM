@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block title %}Arama Sonuçları{% endblock %}
+{% block header %}Arama Sonuçları{% endblock %}
+
+{% block content %}
+  <h2 class="text-xl font-semibold mb-4">“{{ query }}” için bulunananlar</h2>
+
+  {% if not (customers or stocks or messages or tasks or opportunities) %}
+    <p class="text-gray-600">Hiç sonuç bulunamadı.</p>
+  {% endif %}
+
+  {% if customers %}
+    <h3 class="mt-4 mb-2 font-semibold">Müşteriler</h3>
+    <ul class="list-disc ml-6">
+      {% for c in customers %}
+        <li>
+          <a href="{{ url_for('customers.edit_customer', id=c.id) }}"
+             class="text-blue-600 hover:underline">
+            {{ c.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if stocks %}
+    <h3 class="mt-4 mb-2 font-semibold">Stoklar</h3>
+    <ul class="list-disc ml-6">
+      {% for s in stocks %}
+        <li>
+          <a href="{{ url_for('stock.update_stock', id=s.id) }}"
+             class="text-indigo-600 hover:underline">
+            {{ s.size }} ({{ s.quantity }})
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if messages %}
+    <h3 class="mt-4 mb-2 font-semibold">Mesajlar</h3>
+    <ul class="list-disc ml-6">
+      {% for m in messages %}
+        <li>
+          {{ m.body[:50] ~ ('…' if m.body|length>50 else '') }}
+          <a href="{{ url_for('messages.message_list') }}" class="text-blue-600 hover:underline">[Tüm Mesajlar]</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if tasks %}
+    <h3 class="mt-4 mb-2 font-semibold">Görevler</h3>
+    <ul class="list-disc ml-6">
+      {% for t in tasks %}
+        <li>
+          <a href="{{ url_for('tasks.index') }}" class="text-green-600 hover:underline">
+            {{ t.title }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if opportunities %}
+    <h3 class="mt-4 mb-2 font-semibold">Fırsatlar</h3>
+    <ul class="list-disc ml-6">
+      {% for o in opportunities %}
+        <li>
+          <a href="{{ url_for('opportunities.index') }}" class="text-purple-600 hover:underline">
+            {{ o.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
