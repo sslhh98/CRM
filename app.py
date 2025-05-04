@@ -4,6 +4,16 @@ from flask_login import LoginManager
 from extensions import db
 import importlib
 from config import Config
+# app.py
+# …
+# Blueprint’leri, extensions vs. import ettikten hemen sonra:
+import modules.dashboard.models  # Activity model’i burada kaydedilmiş olur
+from modules.dashboard.models import Activity
+from modules.customers.models import Customer
+from modules.stock.models import Stock
+from modules.messages.models import Message
+from modules.tasks.models import Task
+from modules.opportunities.models import Opportunity
 
 # Flask uygulaması oluşturma
 app = Flask(__name__)

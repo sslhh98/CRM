@@ -1,16 +1,11 @@
-from datetime import datetime
+# modules/dashboard/models.py
 from extensions import db
+from datetime import datetime
 
 class Activity(db.Model):
-    __tablename__ = 'activities'
-    id = db.Column(db.Integer, primary_key=True)
-    # İster kullanıcı modeliniz varsa ForeignKey('user.id') ekleyin, yoksa numeric olarak saklayın
-    user_id = db.Column(db.Integer, nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
-    action = db.Column(db.String(255), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
-    # İlişkiler
-    # Eğer bir User modeli mevcutsa aşağıdaki satırı aktif edin ve doğru yolu belirtin
-    # user = db.relationship('User', backref='activities')
-    customer = db.relationship('Customer', backref='activities')
+    id        = db.Column(db.Integer, primary_key=True)
+    user_id   = db.Column(db.Integer, nullable=False)
+    module    = db.Column(db.String(50), nullable=False)
+    action    = db.Column(db.String(200), nullable=False)
+    item_id   = db.Column(db.Integer, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
