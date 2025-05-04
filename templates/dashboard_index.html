@@ -4,56 +4,97 @@
 
 {% block content %}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <!-- Metrik Kartları -->
   <div class="bg-white p-6 rounded shadow text-center">
     <span class="text-3xl font-bold">{{ total_customers }}</span>
-    <p class="text-gray-600">Müşteri</p>
+    <p class="text-gray-600">Toplam Müşteri</p>
   </div>
   <div class="bg-white p-6 rounded shadow text-center">
     <span class="text-3xl font-bold">{{ total_stocks }}</span>
-    <p class="text-gray-600">Stok Kaydı</p>
+    <p class="text-gray-600">Toplam Stok Kaydı</p>
   </div>
   <div class="bg-white p-6 rounded shadow text-center">
     <span class="text-3xl font-bold">{{ total_messages }}</span>
-    <p class="text-gray-600">Mesaj</p>
+    <p class="text-gray-600">Toplam Mesaj</p>
   </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="bg-white p-6 rounded shadow mt-6">
+  <h3 class="text-xl font-semibold mb-4">Zaman Tüneli</h3>
+  <ul class="space-y-4 overflow-y-auto max-h-[50vh]">
+    {% for act in latest_activities %}
+    <li class="flex items-start space-x-3">
+      {% set status = act.action.split('“')[-1].rstrip('”') if '“' in act.action else None %}
+      {% set color = status == 'Aktif' and 'bg-green-500'
+                     or status == 'Beklemede' and 'bg-yellow-500'
+                     or status == 'Aksaya alındı' and 'bg-red-500'
+                     or 'bg-gray-400' %}
+      <span class="mt-1 w-3 h-3 rounded-full {{ color }}"></span>
+      <div class="flex-1">
+        <p class="font-medium text-gray-800">
+          {{ act.customer.name if act.customer else 'Genel' }}
+        </p>
+        <p class="text-sm text-gray-600">{{ act.action }}</p>
+        <p class="text-xs text-gray-500">
+          {{ act.timestamp.strftime('%d %b, %H:%M') }}
+          {% if act.user_id %}• Kullanıcı #{{ act.user_id }}{% endif %}
+        </p>
+      </div>
+    </li>
+    {% else %}
+    <li class="text-gray-500 italic">Henüz etkinlik kaydı yok.</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <!-- Görev Durumları Grafiği -->
   <div class="bg-white p-6 rounded shadow">
     <h3 class="text-xl font-semibold mb-4">Görev Durumları</h3>
     <canvas id="tasksChart"></canvas>
   </div>
+  <!-- Fırsat Aşamaları Grafiği -->
   <div class="bg-white p-6 rounded shadow">
     <h3 class="text-xl font-semibold mb-4">Fırsat Aşamaları</h3>
     <canvas id="oppsChart"></canvas>
   </div>
 </div>
-
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // Görev Durumları Pie Chart
-  new Chart(document.getElementById('tasksChart'), {
-    type: 'pie',
-    data: {
-      labels: {{ tasks_status_counts.keys()|list|tojson }},
-      datasets: [{ data: {{ tasks_status_counts.values()|list|tojson }}}]
-    }
-  });
-
-  // Fırsat Aşamaları Bar Chart
-  new Chart(document.getElementById('oppsChart'), {
-    type: 'bar',
-    data: {
-      labels: {{ opp_stage_counts.keys()|list|tojson }},
-      datasets: [{
-        label: 'Fırsat Sayısı',
-        data: {{ opp_stage_counts.values()|list|tojson }}
-      }]
-    },
-    options: {
-      scales: { y: { beginAtZero: true } }
-    }
-  });
-</script>
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Görev Durumları Pie Chart
+    new Chart(document.getElementById('tasksChart'), {
+      type: 'pie',
+      data: {
+        labels: {{ tasks_status_counts.keys()|list|tojson }},
+        datasets: [{
+          data: {{ tasks_status_counts.values()|list|tojson }},
+          backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+        }]
+      }
+    });
+
+    // Fırsat Aşamaları Bar Chart
+    new Chart(document.getElementById('oppsChart'), {
+      type: 'bar',
+      data: {
+        labels: {{ opp_stage_counts.keys()|list|tojson }},
+        datasets: [{
+          label: 'Fırsat Sayısı',
+          data: {{ opp_stage_counts.values()|list|tojson }},
+          backgroundColor: '#3B82F6'
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+{% endblock %}
+```

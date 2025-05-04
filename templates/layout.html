@@ -9,13 +9,43 @@
 <body class="bg-gray-100 h-screen flex overflow-hidden">
 
   <!-- Sidebar -->
-  <aside id="sidebar"
-         class="fixed inset-y-0 left-0 w-64 bg-white shadow-md
-                transform -translate-x-full transition-transform duration-200 ease-in-out">
+  <aside x-data="customerSidebar()"
+         id="sidebar"
+         class="fixed inset-y-0 left-0 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-200 ease-in-out">
     <div class="p-4 text-xl font-semibold border-b">
       {% block brand %}CRM{% endblock %}
     </div>
-    <nav class="mt-4">
+    <!-- Müşteri Listesi -->
+    <div class="p-4">
+      <h2 class="font-semibold mb-2">MÜŞTERİLER</h2>
+      <input type="text" placeholder="Ara..." x-model="query"
+             class="w-full border rounded p-2 mb-2 text-sm" />
+      <button @click="showForm = !showForm"
+              class="flex items-center text-green-600 mb-2 focus:outline-none">
+        <span class="text-xl mr-1">+</span> Yeni Kayıt
+      </button>
+      <template x-if="showForm">
+        <form @submit.prevent="addCustomer" class="mb-4 space-y-2">
+          <input type="text" placeholder="Şirket Adı" x-model="newName" required
+                 class="w-full border rounded p-2 text-sm" />
+          <button type="submit"
+                  class="bg-green-600 text-white px-4 py-2 rounded text-sm">
+            Kaydet
+          </button>
+        </form>
+      </template>
+      <ul class="space-y-1 overflow-y-auto max-h-[50vh] text-sm">
+        <template x-for="cust in filteredCustomers" :key="cust.id">
+          <li @click="goToCustomer(cust.id)"
+              class="cursor-pointer hover:bg-gray-200 rounded p-1"
+              x-text="cust.name"></li>
+        </template>
+        <li x-show="filteredCustomers.length === 0"
+            class="text-gray-500 italic">Kayıt bulunamadı.</li>
+      </ul>
+    </div>
+    <!-- Modül Linkleri -->
+    <nav class="mt-auto p-4 border-t">
       {% set labels = {
          'customers':'Müşteriler',
          'stock':'Stoklar',
@@ -55,14 +85,11 @@
       </div>
 
       <!-- Sağ: Global Arama -->
-      <form method="GET"
-            action="{{ url_for('global_search') }}"
+      <form method="GET" action="{{ url_for('global_search') }}"
             class="flex items-center border border-gray-300 rounded overflow-hidden w-64">
-        <input type="text"
-               name="q"
-               value="{{ request.args.get('q','') }}"
+        <input type="text" name="q" value="{{ request.args.get('q','') }}"
                placeholder="Genel arama…"
-               class="flex-1 px-3 py-1 focus:outline-none">
+               class="flex-1 px-3 py-1 focus:outline-none text-sm">
         <button type="submit" class="px-3">
           <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -78,7 +105,39 @@
   </div>
 
   {% block scripts %}
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
   <script>
+    function customerSidebar() {
+      return {
+        query: '',
+        showForm: false,
+        newName: '',
+        customers: {{ all_customers|tojson }},
+        get filteredCustomers() {
+          return this.customers.filter(c =>
+            c.name.toLowerCase().includes(this.query.toLowerCase())
+          )
+        },
+        goToCustomer(id) {
+          window.location.href = `/customers/${id}`
+        },
+        addCustomer() {
+          fetch('/customers/add_inline', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: this.newName })
+          })
+          .then(res => res.json())
+          .then(data => {
+            this.customers.push(data)
+            this.newName = ''
+            this.showForm = false
+            this.query = ''
+          })
+        }
+      }
+    }
+
     // Sidebar toggle
     const sb = document.getElementById('sidebar');
     document.getElementById('sidebarToggle')
@@ -89,3 +148,4 @@
   {% endblock %}
 </body>
 </html>
+<!--  -->
