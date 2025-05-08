@@ -1,12 +1,18 @@
+# modules/customers/models.py
+
 from extensions import db
 
 class Customer(db.Model):
-    id      = db.Column(db.Integer, primary_key=True)
-    name    = db.Column(db.String(128), nullable=False)
-    phone   = db.Column(db.String(32), nullable=False)
-    email   = db.Column(db.String(128), nullable=False)
-    status  = db.Column(db.String(64), nullable=False)
-    tag     = db.Column(db.String(64), unique=True, nullable=False)  # <-- Yeni alan
+    __tablename__ = 'customers'
+    id     = db.Column(db.Integer, primary_key=True)
+    name   = db.Column(db.String(100), nullable=False)
+    email  = db.Column(db.String(120), unique=True, nullable=False)
+    phone  = db.Column(db.String(30), nullable=True)
+    # …
 
-    def __repr__(self):
-        return f'<Customer {self.name} #{self.tag}>'
+    # --- BUNU EKLE: ---
+    opportunities = db.relationship(
+        'Opportunity',
+        back_populates='customer',
+        cascade='all, delete-orphan'
+    )

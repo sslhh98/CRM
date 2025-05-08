@@ -6,43 +6,33 @@ from extensions import db
 from datetime import datetime
 from modules.dashboard.models import Activity
 
-opportunities_bp = Blueprint('opportunities', __name__, url_prefix='/opportunities')
-STAGES = ['İlk Temas','Teklif Verildi','Görüşme','Kapanış','Kaybedildi']
+# Define the stages for opportunities
+STAGES = ['New', 'In Progress', 'Won', 'Lost']
 
-@opportunities_bp.route('/', methods=['GET','POST'], endpoint='index')
+# modules/opportunities/routes.py
+from flask import Blueprint, render_template, redirect, url_for, flash, request
+from extensions import db
+from .models import Opportunity
+
+opportunities_bp = Blueprint('opportunities', __name__)
+
+@opportunities_bp.route('/')
 def index():
-    if request.method=='POST':
-        name       = request.form.get('name','').strip()
-        cust_id    = request.form.get('customer_id') or None
-        stage      = request.form.get('stage')
-        value      = request.form.get('value') or None
-        close_date = request.form.get('close_date') or None
+    opps = Opportunity.query.order_by(Opportunity.created_at.desc()).all()
+    return render_template('opportunities_index.html', opportunities=opps)
 
-        if not name:
-            flash("Fırsat başlığını girin.", "error")
-            return redirect(url_for('opportunities.index'))
-
-        opp = Opportunity(
-            name=name,
-            customer_id=int(cust_id) if cust_id else None,
-            stage=stage,
-            value=float(value) if value else None,
-            close_date=(datetime.strptime(close_date,'%Y-%m-%d')
-                        if close_date else None)
-        )
-        db.session.add(opp)
+@opportunities_bp.route('/add', methods=['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        name   = request.form['name'].strip()
+        stage  = request.form['stage'].strip()
+        o = Opportunity(name=name, stage=stage)
+        db.session.add(o)
         db.session.commit()
-        # Activity kaydı
-        act = Activity(
-            user_id=current_user.id,
-            customer_id=opp.customer_id,
-            action=f"Yeni fırsat “{opp.name}” eklendi."
-        )
-        db.session.add(act)
-        db.session.commit()
-
-        flash("Yeni fırsat eklendi.", "success")
+        flash('Fırsat eklendi.', 'success')
         return redirect(url_for('opportunities.index'))
+    return render_template('add_opportunity.html')
+
 
     q = request.args.get('q','').strip()
     if q:

@@ -1,35 +1,27 @@
-{% extends "layout.html" %}
-
+{% extends 'layout.html' %}
 {% block title %}Müşteri Düzenle{% endblock %}
-{% block header %}Müşteriyi Düzenle{% endblock %}
 
 {% block content %}
-<div class="max-w-lg mx-auto bg-white p-6 rounded shadow">
-  <form method="POST" class="space-y-4">
-    <div>
-      <label class="block text-gray-700 mb-1">İsim</label>
-      <input type="text" name="name" value="{{ customer.name }}"
-             class="w-full border border-gray-300 rounded px-3 py-2" required>
+<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-2xl mb-4">Müşteri Düzenle</h2>
+  <form method="POST">
+    <div class="mb-4">
+      <label>Ad</label>
+      <input name="name" value="{{ customer.name }}" type="text" required class="w-full border p-2 rounded"/>
     </div>
-    <div>
-      <label class="block text-gray-700 mb-1">Telefon</label>
-      <input type="text" name="phone" value="{{ customer.phone }}"
-             class="w-full border border-gray-300 rounded px-3 py-2" required>
+    <div class="mb-4">
+      <label>Email</label>
+      <input name="email" value="{{ customer.email }}" type="email" required class="w-full border p-2 rounded"/>
     </div>
-    <div>
-      <label class="block text-gray-700 mb-1">Email</label>
-      <input type="email" name="email" value="{{ customer.email }}"
-             class="w-full border border-gray-300 rounded px-3 py-2" required>
+    <div class="mb-4">
+      <label>Telefon</label>
+      <input name="phone" value="{{ customer.phone }}" type="text" class="w-full border p-2 rounded"/>
     </div>
-    <div>
-      <label class="block text-gray-700 mb-1">Durum</label>
-      <input type="text" name="status" value="{{ customer.status }}"
-             class="w-full border border-gray-300 rounded px-3 py-2" required>
+    <div class="mb-4">
+      <label>Adres</label>
+      <textarea name="address" class="w-full border p-2 rounded">{{ customer.address }}</textarea>
     </div>
-    <div class="flex space-x-4">
-      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Kaydet</button>
-      <a href="{{ url_for('customers.customer_list') }}" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">İptal</a>
-    </div>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Güncelle</button>
   </form>
 </div>
 {% endblock %}

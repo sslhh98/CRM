@@ -6,6 +6,6 @@ class Message(db.Model):
     body = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     tag = db.Column(db.String(50))  # Etiket (isteğe bağlı)
-
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     def __repr__(self):
         return f'<Message {self.id}>'

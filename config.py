@@ -1,13 +1,22 @@
-import os, json
+import os
+
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///crm.db'
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'gizli-key')
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL',
+        'sqlite:///crm.db'        # projenin kökünde crm.db dosyası oluşturur
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # modules.json yolu
-    MODULES_PATH = os.path.join(os.path.dirname(__file__), 'modules.json')
-
-    # modules.json’dan aktif modülleri oku
-    with open(MODULES_PATH, 'r', encoding='utf-8') as f:
-        ENABLED_MODULES = json.load(f)
+    # Uygulamada hangi modüller aktif olsun?
+    ENABLED_MODULES = {
+        'dashboard': 'Dashboard',
+        'customers': 'Müşteriler',
+        'stock': 'Stok',
+        'messages': 'Mesajlar',
+        'tasks': 'Görevler',
+        'opportunities': 'Fırsatlar',
+        'settings': 'Ayarlar',
+        'auth': 'Kimlik'
+    }

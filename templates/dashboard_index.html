@@ -1,77 +1,96 @@
 {% extends "layout.html" %}
+
 {% block title %}Dashboard{% endblock %}
 {% block header %}Dashboard{% endblock %}
 
 {% block content %}
   <!-- 1) Metrik Kartları -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white p-6 rounded shadow text-center">
-      <span class="text-3xl font-bold">{{ total_customers }}</span>
-      <p class="text-gray-600">Toplam Müşteri</p>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div class="text-3xl font-bold">{{ total_customers }}</div>
+      <div class="text-gray-600">Toplam Müşteri</div>
     </div>
-    <div class="bg-white p-6 rounded shadow text-center">
-      <span class="text-3xl font-bold">{{ total_stocks }}</span>
-      <p class="text-gray-600">Toplam Stok Kaydı</p>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div class="text-3xl font-bold">{{ total_stocks }}</div>
+      <div class="text-gray-600">Toplam Stok Kaydı</div>
     </div>
-    <div class="bg-white p-6 rounded shadow text-center">
-      <span class="text-3xl font-bold">{{ total_messages }}</span>
-      <p class="text-gray-600">Toplam Mesaj</p>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div class="text-3xl font-bold">{{ total_messages }}</div>
+      <div class="text-gray-600">Toplam Mesaj</div>
     </div>
   </div>
 
- <!-- Zaman Tüneli -->
-<div class="bg-white rounded shadow mb-6">
-  <div class="px-6 py-4 border-b">
-    <h2 class="text-lg font-semibold">Zaman Tüneli</h2>
-  </div>
-  <div
-    id="timeline"
-    class="p-6 max-h-64 overflow-y-auto space-y-4"
-    onscroll="if(this.scrollTop + this.clientHeight >= this.scrollHeight - 10) loadMoreActivities()"
-  >
-    {% if activities %}
-      {% for act in activities %}
-        {% set status = (
-             act.action.endswith('Bekliyor')   and 'Bekliyor'
-           or act.action.endswith('Aktif')      and 'Aktif'
-           or act.action.endswith('Tamamlandı') and 'Tamamlandı'
-           or act.action.endswith('Askıya alındı') and 'Askıya alındı'
-           or 'Diğer'
-        ) %}
-        <div class="flex items-start space-x-3">
-          <span class="inline-block w-3 h-3 rounded-full
-            {% if status == 'Bekliyor' %}bg-yellow-500{% endif %}
-            {% if status == 'Aktif'    %}bg-green-500{% endif %}
-            {% if status == 'Tamamlandı'%}bg-gray-400{% endif %}
-            {% if status == 'Askıya alındı'%}bg-red-500{% endif %}
-          "></span>
-          <div>
-            <div class="text-sm text-gray-500">
-              {{ act.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-            </div>
-            <div class="text-sm">
-              {{ act.action }}
+  <!-- 2) Zaman Tüneli -->
+  <div class="bg-white rounded-lg shadow mb-6">
+    <div class="px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Zaman Tüneli</h2>
+    </div>
+    <div id="timeline" class="p-6 max-h-64 overflow-y-auto space-y-4">
+      {% if activities %}
+        {% for act in activities %}
+          {% set color = (
+               act.action.endswith('Bekliyor')   and 'bg-yellow-500' or
+               act.action.endswith('Aktif')      and 'bg-green-500' or
+               act.action.endswith('Tamamlandı') and 'bg-gray-400' or
+               act.action.endswith('Askıya alındı') and 'bg-red-500' or
+               'bg-blue-500'
+          ) %}
+          <div class="flex items-start space-x-3">
+            <span class="w-3 h-3 rounded-full {{ color }}"></span>
+            <div>
+              <div class="text-sm text-gray-500">
+                {{ act.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+              </div>
+              <div class="text-sm">{{ act.action }}</div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-    {% else %}
-      <p class="text-gray-600 italic">Henüz etkinlik kaydı yok.</p>
-    {% endif %}
+        {% endfor %}
+      {% else %}
+        <p class="text-gray-600 italic">Henüz etkinlik kaydı yok.</p>
+      {% endif %}
+    </div>
   </div>
-</div>
 
-  <!-- 3) Chart’lar -->
+  <!-- 3) Chart Kartları -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white p-6 rounded shadow">
+    <div class="bg-white rounded-lg shadow p-6">
       <h3 class="mb-4 font-medium">Görev Durumları</h3>
       <canvas id="tasksChart"></canvas>
     </div>
-    <div class="bg-white p
--6 rounded shadow">
-      <h3 class="mb-4 font-medium">Müşteri Dağılımı</h3>
-      <canvas id="customersChart"></canvas>
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="mb-4 font-medium">Fırsat Aşamaları</h3>
+      <canvas id="oppsChart"></canvas>
     </div>
   </div>
+{% endblock %}
 
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Görev Durumları Pie
+    new Chart(document.getElementById('tasksChart'), {
+      type: 'pie',
+      data: {
+        labels: {{ tasks_status_counts.keys()|list|tojson }},
+        datasets: [{
+          data: {{ tasks_status_counts.values()|list|tojson }},
+          backgroundColor: ['#10B981','#F59E0B','#6B7280','#EF4444']
+        }]
+      }
+    });
+
+    // Fırsat Aşamaları Bar
+    new Chart(document.getElementById('oppsChart'), {
+      type: 'bar',
+      data: {
+        labels: {{ opp_stage_counts.keys()|list|tojson }},
+        datasets: [{
+          label: 'Fırsat Sayısı',
+          data: {{ opp_stage_counts.values()|list|tojson }},
+          backgroundColor: '#3B82F6'
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  </script>
 {% endblock %}
