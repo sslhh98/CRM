@@ -1,41 +1,33 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import current_user
-from sqlalchemy.exc import IntegrityError
+from flask_login import login_required, current_user
+from extensions import db
 from modules.tasks.models import Task
-from extensions import db
-from datetime import datetime
-from modules.dashboard.models import Activity
 
-tasks_bp = Blueprint('tasks', __name__, url_prefix='/tasks')
-
-# modules/tasks/routes.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from extensions import db
-from .models import Task
-
-tasks_bp = Blueprint('tasks', __name__)
+tasks_bp = Blueprint('tasks', __name__, template_folder='templates/tasks')
 
 @tasks_bp.route('/')
+@login_required
 def index():
     tasks = Task.query.order_by(Task.due_date).all()
-    return render_template('tasks_list.html', tasks=tasks)
+    return render_template('tasks/index.html', tasks=tasks)
 
-@tasks_bp.route('/add', methods=['GET', 'POST'])
-def add():
+@tasks_bp.route('/create', methods=['GET','POST'])
+@login_required
+def create():
     if request.method == 'POST':
-        title = request.form['title'].strip()
-        due   = request.form['due_date']
-        t = Task(title=title, due_date=due)
+        title   = request.form['title']
+        due_date= request.form['due_date']  # yyyy-mm-dd
+        t = Task(title=title, due_date=due_date, user_id=current_user.id)
         db.session.add(t)
         db.session.commit()
-        flash('Görev eklendi.', 'success')
+        flash('Görev oluşturuldu.', 'success')
         return redirect(url_for('tasks.index'))
-    return render_template('add_task.html')
+    return render_template('tasks/create.html')
 
-@tasks_bp.route('/<int:id>/complete', methods=['POST'])
-def complete(id):
+@tasks_bp.route('/<int:id>/toggle')
+@login_required
+def toggle(id):
     t = Task.query.get_or_404(id)
-    t.completed = True
+    t.completed = not t.completed
     db.session.commit()
-    flash('Görev tamamlandı.', 'info')
     return redirect(url_for('tasks.index'))

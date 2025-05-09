@@ -1,40 +1,31 @@
-# modules/messages/routes.py
-from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import current_user
-from modules.messages.models import Message
-from extensions import db, log_activity
-
-messages_bp = Blueprint('messages', __name__, url_prefix='/messages')
-
-@messages_bp.route('/', methods=['GET'], endpoint='index')
-def index():
-    msgs = Message.query.order_by(Message.timestamp.desc()).all()
-    return render_template('messages_list.html', messages=msgs)
-
-# modules/messages/routes.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required, current_user
 from extensions import db
-from .models import Message
+from modules.messages.models import Message
 
-messages_bp = Blueprint('messages', __name__)
+messages_bp = Blueprint('messages', __name__, template_folder='templates/messages')
 
 @messages_bp.route('/')
+@login_required
 def index():
-    msgs = Message.query.order_by(Message.created_at.desc()).all()
-    return render_template('messages_list.html', messages=msgs)
+    msgs = Message.query.order_by(Message.timestamp.desc()).all()
+    return render_template('messages/index.html', messages=msgs)
 
-@messages_bp.route('/add', methods=['GET', 'POST'])
-def add():
+@messages_bp.route('/create', methods=['GET','POST'])
+@login_required
+def create():
     if request.method == 'POST':
-        body = request.form['body'].strip()
-        m = Message(body=body)
+        body = request.form['body']
+        tag  = request.form.get('tag','')
+        m = Message(body=body, tag=tag, user_id=current_user.id)
         db.session.add(m)
         db.session.commit()
-        flash('Mesaj eklendi.', 'success')
+        flash('Mesaj gönderildi.', 'success')
         return redirect(url_for('messages.index'))
-    return render_template('add_message.html')
+    return render_template('messages/create.html')
 
 @messages_bp.route('/tag/<tag>')
+@login_required
 def tag_filter(tag):
-    msgs = Message.query.filter(Message.body.contains(f"#{tag}")).all()
-    return render_template('search_results.html', messages=msgs, query=f"#{tag}")
+    msgs = Message.query.filter_by(tag=tag).all()
+    return render_template('messages/index.html', messages=msgs)

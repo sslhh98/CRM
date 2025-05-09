@@ -1,14 +1,23 @@
-import os, json
-# modules/settings/routes.py
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required
+from extensions import db
+from modules.settings.models import Setting
 
-settings_bp = Blueprint('settings', __name__)
+settings_bp = Blueprint('settings', __name__, template_folder='templates/settings')
 
-@settings_bp.route('/', methods=['GET', 'POST'])
+@settings_bp.route('/')
+@login_required
 def index():
+    settings = Setting.query.all()
+    return render_template('settings/index.html', settings=settings)
+
+@settings_bp.route('/<int:id>/edit', methods=['GET','POST'])
+@login_required
+def edit(id):
+    s = Setting.query.get_or_404(id)
     if request.method == 'POST':
-        # burada form ile gelen ayarları kaydet
-        flash('Ayarlar kaydedildi.', 'success')
+        s.value = request.form['value']
+        db.session.commit()
+        flash('Ayar kaydedildi.', 'success')
         return redirect(url_for('settings.index'))
-    # mevcut ayarları config veya DB’den çekip ver
-    return render_template('settings.html')
+    return render_template('settings/edit.html', setting=s)
